@@ -61,11 +61,15 @@ jobs:
     - name: Enable sccache
       uses: mozilla-actions/sccache-action@v0.0.9
 
-    - name: Run CMake with docs enabled
+    - name: Run CMake Generate
       run: |
         cd build
-        cmake .. -DOPENSPACE_BUILD_DOCS=ON -G Ninja
-        ninja doc
+        cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_CXX_COMPILER=/usr/bin/g++-13 -DCMAKE_C_COMPILER=/usr/bin/gcc-13 -DCMAKE_CXX_STANDARD=20 -DASSIMP_BUILD_MINIZIP=1 -DBUILD_TESTS=OFF -DOPENSPACE_HAVE_TESTS=OFF -DSGCT_BUILD_TESTS=OFF "$openSpaceHome"
+
+    - name: Run CMake build
+      run: |
+        cd build
+        make -j $(nproc)
 
     - name: Upload doc Artifact
       uses: actions/upload-artifact@v4
@@ -74,12 +78,12 @@ jobs:
         name: OpenSpace-Docs
         # optional, default is artifact
         # A file, directory or wildcard pattern that describes what to upload
-        path: ./build/docs/html
+        path: ./documentation
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/docs/html
+        publish_dir: ./documentation
         publish_branch: gh-pages
         force_orphan: true
