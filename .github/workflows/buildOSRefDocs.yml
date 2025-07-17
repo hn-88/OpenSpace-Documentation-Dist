@@ -1,0 +1,41 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    branches:
+      - master  # or 'main' or any branch you want to trigger on
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+      with:
+        repository: 'OpenSpace/OpenSpace'
+        ref: 'master'
+        submodules: 'recursive'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y doxygen graphviz cmake ninja-build
+
+    - name: Create build directory
+      run: mkdir build
+
+    - name: Run CMake with docs enabled
+      run: |
+        cd build
+        cmake .. -DOPENSPACE_BUILD_DOCS=ON -G Ninja
+        ninja doc
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/docs/html
+        publish_branch: gh-pages
+        force_orphan: true
