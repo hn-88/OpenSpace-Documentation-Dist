@@ -71,8 +71,12 @@ jobs:
         cd build
         make -j $(nproc)
 
-    - name: Run OpenSpace to generate documentation
-      run: bin/OpenSpace
+    - name: Install Xvfb
+      run: sudo apt-get update && sudo apt-get install -y xvfb
+
+    - name: Generate OpenSpace documentation with virtual display
+      run: timeout --kill-after=10s 5m xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' ./bin/OpenSpace -b -p empty
+      
 
     - name: Upload doc Artifact
       uses: actions/upload-artifact@v4
