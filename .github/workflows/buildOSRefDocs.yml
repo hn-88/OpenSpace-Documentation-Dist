@@ -71,6 +71,9 @@ jobs:
         cd build
         make -j $(nproc)
 
+    - name: Run OpenSpace to generate documentation
+      run: bin/OpenSpace
+
     - name: Upload doc Artifact
       uses: actions/upload-artifact@v4
       with:
